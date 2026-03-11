@@ -18,8 +18,4 @@ public class Category {
     private String name;
     @OneToMany(mappedBy = "category")
     private List<Product> products;
-    public void setName(String categoryId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setName'");
-    }
 }

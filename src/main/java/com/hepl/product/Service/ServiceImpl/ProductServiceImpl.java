@@ -54,14 +54,14 @@ public ProductResponseDto save(ProductRequestDto dto) {
     p.setQuantity(dto.getQuantity());
     p.setCode("P" + System.currentTimeMillis());
 
-    // Find Category using name
+    // Find Category using id
     Category category = categoryRepository
-            .findByName(dto.getCategoryName())
+            .findById(dto.getCategoryId())
             .orElseThrow(() -> new RuntimeException("Category Not Found"));
 
-    // Find Customer using name
+    // Find Customer using id
     Customer customer = customerRepository
-            .findByName(dto.getCustomerName())
+            .findById(dto.getCustomerId())
             .orElseThrow(() -> new RuntimeException("Customer Not Found"));
 
     p.setCategory(category);

@@ -11,5 +11,5 @@ import com.hepl.product.model.Category;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
-   Optional<Category> findByName(Long name);
+   Optional<Category> findByName(String name);
 }

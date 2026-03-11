@@ -8,6 +8,5 @@ import com.hepl.product.model.Customer;
 
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
-   //Customer findByName(Long name);
    Optional<Customer> findByName(String name);
 }

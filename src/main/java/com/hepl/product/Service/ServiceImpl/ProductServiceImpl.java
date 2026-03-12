@@ -55,17 +55,20 @@ public ProductResponseDto save(ProductRequestDto dto) {
     p.setCode("P" + System.currentTimeMillis());
 
     // Find Category using id
-    Category category = categoryRepository
+    Category categoryEntity = categoryRepository
             .findById(dto.getCategoryId())
             .orElseThrow(() -> new RuntimeException("Category Not Found"));
 
     // Find Customer using id
-    Customer customer = customerRepository
+    Customer customerEntity = customerRepository
             .findById(dto.getCustomerId())
             .orElseThrow(() -> new RuntimeException("Customer Not Found"));
 
-    p.setCategory(category);
-    p.setCustomer(customer);
+    p.setCategoryObj(categoryEntity);
+    p.setCategory(categoryEntity.getName());
+    
+    p.setCustomerObj(customerEntity);
+    p.setCustomer(customerEntity.getName());
 
     Product saved = repository.save(p);
 
@@ -80,16 +83,19 @@ public ProductResponseDto update(Long id, ProductRequestDto dto) {
 
     p.setName(dto.getName());
 
-    Category category = categoryRepository
+    Category categoryEntity = categoryRepository
             .findById(dto.getCategoryId())
             .orElseThrow(() -> new RuntimeException("Category Not Found"));
 
-    Customer customer = customerRepository
+    Customer customerEntity = customerRepository
             .findById(dto.getCustomerId())
             .orElseThrow(() -> new RuntimeException("Customer Not Found"));
 
-    p.setCategory(category);
-    p.setCustomer(customer);
+    p.setCategoryObj(categoryEntity);
+    p.setCategory(categoryEntity.getName());
+    
+    p.setCustomerObj(customerEntity);
+    p.setCustomer(customerEntity.getName());
 
     p.setPrice(dto.getPrice());
     p.setQuantity(dto.getQuantity());
@@ -107,14 +113,14 @@ public ProductResponseDto update(Long id, ProductRequestDto dto) {
     @Override
     public List<ProductResponseDto> findByCategory(Long categoryId) {
 
-        List<Product> p = repository.findByCategoryId(categoryId);
+        List<Product> p = repository.findByCategoryObjId(categoryId);
 
         return p.stream().map(this::mapToDto).toList();
     }
     @Override
     public List<ProductResponseDto> findByCustomer(Long customerId) {
 
-    List<Product> products = repository.findByCustomerId(customerId);
+    List<Product> products = repository.findByCustomerObjId(customerId);
 
     return products.stream().map(this::mapToDto).toList();
 }
@@ -127,14 +133,14 @@ public ProductResponseDto update(Long id, ProductRequestDto dto) {
     dto.setPrice(product.getPrice());
     dto.setQuantity(product.getQuantity());
 
-    if(product.getCategory()!=null){
-        dto.setCategoryName(product.getCategory().getName());
-        dto.setCategoryId(product.getCategory().getId());
+    if(product.getCategoryObj()!=null){
+        dto.setCategoryName(product.getCategoryObj().getName());
+        dto.setCategoryId(product.getCategoryObj().getId());
     }
 
-    if(product.getCustomer()!=null){
-        dto.setCustomerName(product.getCustomer().getName());
-        dto.setCustomerId(product.getCustomer().getId());
+    if(product.getCustomerObj()!=null){
+        dto.setCustomerName(product.getCustomerObj().getName());
+        dto.setCustomerId(product.getCustomerObj().getId());
     }
 
     return dto;

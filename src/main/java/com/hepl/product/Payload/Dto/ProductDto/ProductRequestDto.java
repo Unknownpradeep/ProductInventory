@@ -9,7 +9,7 @@ import jakarta.validation.constraints.Min;
 @Data
 public class ProductRequestDto {
     @NotBlank(message = "Product name is required")
-    private String name;
+    private String name; 
 
     @NotNull(message = "CategoryId is required")
     private Long categoryId;
@@ -20,7 +20,6 @@ public class ProductRequestDto {
     @Min(value = 0, message = "Quantity cannot be negative")
     private int quantity;
 
-   
     private String code;
 
     @NotNull(message = "CustomerId is required")

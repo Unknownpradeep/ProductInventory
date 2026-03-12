@@ -19,18 +19,26 @@ public class Product{
      @GeneratedValue(strategy = GenerationType.IDENTITY)
      private Long id;
      private String name;
+     
      @ManyToOne
-     @JsonIgnore
      @JoinColumn(name = "category_id")
-     private Category category;
+     private Category categoryObj;
+     
+     @Column(name = "category")
+     private String category;
+     
      private double price;
      private int quantity;
+     
      @Column(unique=true,nullable=false)
      private String code;
+     
      @ManyToOne
-     @JsonIgnore
      @JoinColumn(name="customer_id")
-     private Customer customer;
+     private Customer customerObj;
+     
+     @Column(name = "customer")
+     private String customer;
 
 
 }

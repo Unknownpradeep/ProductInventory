@@ -1,8 +1,5 @@
 package com.hepl.product.model;
 
-
-
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,32 +15,28 @@ public class Product{
      @Id
      @GeneratedValue(strategy = GenerationType.IDENTITY)
      private Long id;
+     
+     @Column(name = "category")
+     private String category;
+     
+     @Column(unique=true,nullable=false)
+     private String code;
+     
      private String name;
+     private double price;
+     private int quantity;
+     
+     @Column(name = "customer")
+     private String customer;
+     
+     @Column(name = "email")
+     private String email;
      
      @ManyToOne
      @JoinColumn(name = "category_id")
      private Category categoryObj;
      
-     @Column(name = "category")
-     private String category;
-     
-     private double price;
-     private int quantity;
-     
-     @Column(unique=true,nullable=false)
-     private String code;
-     
      @ManyToOne
      @JoinColumn(name="customer_id")
      private Customer customerObj;
-     
-     @Column(name = "customer")
-     private String customer;
-
-     public void setEmail(String email) {
-          // TODO Auto-generated method stub
-          throw new UnsupportedOperationException("Unimplemented method 'setEmail'");
-     }
-
-
 }

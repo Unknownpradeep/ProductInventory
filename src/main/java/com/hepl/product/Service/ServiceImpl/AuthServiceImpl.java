@@ -60,6 +60,9 @@ public class AuthServiceImpl implements AuthService {
         
         Login login = loginRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("Invalid username or password"));
+                System.out.println("User found: " + login.getUsername());
+        System.out.println("Password match: " + passwordEncoder.matches(request.getPassword(), login.getPassword()));
+        System.out.println("User active: " + login.isActive());
 
         if (!passwordEncoder.matches(request.getPassword(), login.getPassword())) {
             throw new RuntimeException("Invalid username or password");

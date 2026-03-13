@@ -1,7 +1,7 @@
 package com.hepl.product.model;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -39,6 +39,11 @@ public class Product{
      
      @Column(name = "customer")
      private String customer;
+
+     public void setEmail(String email) {
+          // TODO Auto-generated method stub
+          throw new UnsupportedOperationException("Unimplemented method 'setEmail'");
+     }
 
 
 }

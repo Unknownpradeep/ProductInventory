@@ -3,6 +3,7 @@ import lombok.Data;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
 
 
@@ -10,6 +11,9 @@ import jakarta.validation.constraints.Min;
 public class ProductRequestDto {
     @NotBlank(message = "Product name is required")
     private String name; 
+
+    @Email(message = "Invalid email format")
+    private String email;
 
     @NotNull(message = "CategoryId is required")
     private Long categoryId;

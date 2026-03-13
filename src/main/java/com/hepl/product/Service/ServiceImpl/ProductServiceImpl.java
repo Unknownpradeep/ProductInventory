@@ -69,6 +69,7 @@ public ProductResponseDto save(ProductRequestDto dto) {
     
     p.setCustomerObj(customerEntity);
     p.setCustomer(customerEntity.getName());
+    p.setEmail(customerEntity.getEmail());
 
     Product saved = repository.save(p);
 
@@ -96,6 +97,7 @@ public ProductResponseDto update(Long id, ProductRequestDto dto) {
     
     p.setCustomerObj(customerEntity);
     p.setCustomer(customerEntity.getName());
+    p.setEmail(customerEntity.getEmail());
 
     p.setPrice(dto.getPrice());
     p.setQuantity(dto.getQuantity());
@@ -141,6 +143,7 @@ public ProductResponseDto update(Long id, ProductRequestDto dto) {
     if(product.getCustomerObj()!=null){
         dto.setCustomerName(product.getCustomerObj().getName());
         dto.setCustomerId(product.getCustomerObj().getId());
+        dto.setEmail(product.getCustomerObj().getEmail());
     }
 
     return dto;

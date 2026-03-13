@@ -8,6 +8,7 @@ public class ProductResponseDto {
 
 
     private String name;
+    private String email;
 
     private String categoryName;
     private Long categoryId;

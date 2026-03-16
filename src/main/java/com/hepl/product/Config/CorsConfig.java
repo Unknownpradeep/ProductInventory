@@ -15,15 +15,17 @@ public class CorsConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         
         // Allow all origins for development
-        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
+     //   configuration.setAllowedOriginPatterns(Arrays.asList("*"));
         
         // Or use specific origins
-        // configuration.setAllowedOrigins(Arrays.asList(
-        //     "http://localhost:5173",
+         configuration.setAllowedOrigins(Arrays.asList(
+           "http://localhost:5173",
         //     "http://localhost:3000",
         //     "http://localhost:8080",
         //     "http://127.0.0.1:5173"
-        // ));
+            "https://5thq69dw-8080.inc1.devtunnels.ms" 
+
+         ));
         
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"));
         configuration.setAllowedHeaders(Arrays.asList("*"));

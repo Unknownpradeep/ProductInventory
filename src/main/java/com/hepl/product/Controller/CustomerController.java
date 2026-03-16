@@ -29,7 +29,7 @@ public class CustomerController {
 
     
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse> getCustomer(@PathVariable Long id){
+    public ResponseEntity<ApiResponse> getCustomer(@PathVariable(value= "id") Long id){
         return ResponseEntity.ok(
             new ApiResponse(HttpStatus.OK.value(),"Success",service.get(id))
         );
@@ -45,7 +45,7 @@ public class CustomerController {
 
     
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse> updateCustomer(@PathVariable Long id,
+    public ResponseEntity<ApiResponse> updateCustomer(@PathVariable(value = "id") Long id,
                                                       @RequestBody Customer customer){
         return ResponseEntity.ok(
             new ApiResponse(HttpStatus.OK.value(),"Customer Updated",service.update(id,customer))
@@ -54,7 +54,7 @@ public class CustomerController {
 
     
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse> deleteCustomer(@PathVariable Long id){
+    public ResponseEntity<ApiResponse> deleteCustomer(@PathVariable(value = "id") Long id){
         service.delete(id);
         return ResponseEntity.ok(
             new ApiResponse(HttpStatus.OK.value(),"Customer Deleted",null)

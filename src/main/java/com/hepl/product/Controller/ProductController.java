@@ -39,7 +39,7 @@ public class ProductController {
      }
 
      @GetMapping("/{id}")
-     public ResponseEntity<ApiResponse>getProduct(@PathVariable Long id) {
+     public ResponseEntity<ApiResponse>getProduct(@PathVariable(value = "id") Long id) {
        return ResponseEntity.ok(
          new ApiResponse(HttpStatus.OK.value(),"Success",service.get(id)));
      }
@@ -51,12 +51,12 @@ public class ProductController {
      }
 
      @PutMapping("/{id}")
-     public ResponseEntity<ApiResponse>updateProduct(@Valid @PathVariable Long id,@RequestBody ProductRequestDto dto ) {
+     public ResponseEntity<ApiResponse>updateProduct(@Valid @PathVariable(value = "id") Long id,@RequestBody ProductRequestDto dto ) {
         return ResponseEntity.ok(
          new ApiResponse(HttpStatus.OK.value(),"Success",service.update(id, dto)));
      }
      @DeleteMapping("/{id}")
-      public ResponseEntity<ApiResponse> deleteProduct(@PathVariable Long id){
+      public ResponseEntity<ApiResponse> deleteProduct(@PathVariable(value = "id") Long id){
         service.delete(id);
         return ResponseEntity.ok(
          new ApiResponse(HttpStatus.OK.value(),"Product deleted successfully",null));

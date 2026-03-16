@@ -29,7 +29,7 @@ public class RoleController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse> getRole(@PathVariable Long id){
+    public ResponseEntity<ApiResponse> getRole(@PathVariable(value= "id") Long id){
         return ResponseEntity.ok(
             new ApiResponse(HttpStatus.OK.value(),"Success",service.get(id))
         );
@@ -43,14 +43,14 @@ public class RoleController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse> updateRole(@PathVariable Long id, @RequestBody Role role){
+    public ResponseEntity<ApiResponse> updateRole(@PathVariable(value = "id") Long id, @RequestBody Role role){
         return ResponseEntity.ok(
             new ApiResponse(HttpStatus.OK.value(),"Role Updated",service.update(id,role))
         );
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse> deleteRole(@PathVariable Long id){
+    public ResponseEntity<ApiResponse> deleteRole(@PathVariable(value = "id") Long id){
         service.delete(id);
         return ResponseEntity.ok(
             new ApiResponse(HttpStatus.OK.value(),"Role Deleted",null)
@@ -59,7 +59,7 @@ public class RoleController {
 
     @PostMapping("/{roleId}/permissions")
     public ResponseEntity<ApiResponse> assignPermissions(
-            @PathVariable Long roleId, 
+            @PathVariable(value = "roleId") Long roleId, 
             @RequestBody List<Long> permissionIds){
         return ResponseEntity.ok(
             new ApiResponse(HttpStatus.OK.value(),"Permissions Assigned",service.assignPermissions(roleId, permissionIds))

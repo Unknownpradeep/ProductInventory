@@ -29,7 +29,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse> getUser(@PathVariable Integer id){
+    public ResponseEntity<ApiResponse> getUser(@PathVariable(value = "id") Integer id){
         return ResponseEntity.ok(
             new ApiResponse(HttpStatus.OK.value(),"Success",service.get(id))
         );
@@ -43,14 +43,14 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse> updateUser(@PathVariable Integer id, @RequestBody User user){
+    public ResponseEntity<ApiResponse> updateUser(@PathVariable(value = "id") Integer id, @RequestBody User user){
         return ResponseEntity.ok(
             new ApiResponse(HttpStatus.OK.value(),"User Updated",service.update(id,user))
         );
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse> deleteUser(@PathVariable Integer id){
+    public ResponseEntity<ApiResponse> deleteUser(@PathVariable(value = "id") Integer id){
         service.delete(id);
         return ResponseEntity.ok(
             new ApiResponse(HttpStatus.OK.value(),"User Deleted",null)
@@ -59,7 +59,7 @@ public class UserController {
 
     @PostMapping("/{userId}/roles")
     public ResponseEntity<ApiResponse> assignRoles(
-            @PathVariable Integer userId, 
+            @PathVariable(value = "userId") Integer userId, 
             @RequestBody List<Long> roleIds){
         return ResponseEntity.ok(
             new ApiResponse(HttpStatus.OK.value(),"Roles Assigned",service.assignRoles(userId, roleIds))

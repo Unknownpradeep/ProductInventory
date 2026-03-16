@@ -5,6 +5,9 @@ import java.util.List;
 import com.hepl.product.model.User;
 
 public interface UserService {
+
+
+    
     List<User> listAll();
     User get(Integer id);
     User save(User user);

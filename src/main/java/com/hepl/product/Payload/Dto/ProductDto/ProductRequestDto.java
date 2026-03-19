@@ -3,17 +3,12 @@ import lombok.Data;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
-
 
 @Data
 public class ProductRequestDto {
     @NotBlank(message = "Product name is required")
-    private String name; 
-
-    @Email(message = "Invalid email format")
-    private String email;
+    private String name;
 
     @NotNull(message = "CategoryId is required")
     private Long categoryId;
@@ -24,9 +19,6 @@ public class ProductRequestDto {
     @Min(value = 0, message = "Quantity cannot be negative")
     private int quantity;
 
-    private String code;
-
     @NotNull(message = "CustomerId is required")
     private Long customerId;
-
 }

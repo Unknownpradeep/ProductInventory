@@ -135,17 +135,6 @@ public ProductResponseDto update(Long id, ProductRequestDto dto) {
     dto.setPrice(product.getPrice());
     dto.setQuantity(product.getQuantity());
 
-    if(product.getCategoryObj()!=null){
-        dto.setCategoryName(product.getCategoryObj().getName());
-        dto.setCategoryId(product.getCategoryObj().getId());
-    }
-
-    if(product.getCustomerObj()!=null){
-        dto.setCustomerName(product.getCustomerObj().getName());
-        dto.setCustomerId(product.getCustomerObj().getId());
-        dto.setEmail(product.getCustomerObj().getEmail());
-    }
-
     return dto;
 }
 

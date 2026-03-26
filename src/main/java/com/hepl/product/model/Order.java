@@ -2,8 +2,9 @@ package com.hepl.product.model;
 
 import java.time.LocalDateTime;
 import java.util.List;
+//import java.util.stream.Stream;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+//import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -39,19 +40,29 @@ public class Order {
     @Column(name = "customer_email")
     private String customerEmail;
 
-    private double totalAmount;
+    @Column(name = "total_amount")
+    private double totalPrice;
 
     private String status;
 
-    private String paymentStatus;
+    private String paymentstatus;
 
     private String shippingAddress;
+    private Double SubTotal;
+    private Double TotalDiscount;
+    private Double TotalTax;
+
+    private String qrCodePath;
+
+   
 
     private LocalDateTime orderDate = LocalDateTime.now();
 
     private LocalDateTime updatedAt = LocalDateTime.now();
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
-    @JsonIgnore
+   // @JsonIgnore
     private List<OrderItem> orderItems;
+
+    
 }

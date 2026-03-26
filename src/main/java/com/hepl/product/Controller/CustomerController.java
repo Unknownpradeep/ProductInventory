@@ -5,10 +5,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.hepl.product.Payload.Dto.CustomerDto.CustomerRequestDto;
+  
 import com.hepl.product.Payload.Response.ApiResponse;
 import com.hepl.product.Service.CustomerService;
 import com.hepl.product.model.Customer;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -37,7 +40,7 @@ public class CustomerController {
 
     
     @PostMapping
-    public ResponseEntity<ApiResponse> addCustomer(@RequestBody Customer customer){
+    public ResponseEntity<ApiResponse> addCustomer(@Valid @RequestBody CustomerRequestDto customer){
         return ResponseEntity.ok(
             new ApiResponse(HttpStatus.CREATED.value(),"Customer Created",service.save(customer))
         );
@@ -45,7 +48,7 @@ public class CustomerController {
 
     
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse> updateCustomer(@PathVariable(value = "id") Long id,
+    public ResponseEntity<ApiResponse> updateCustomer(@Valid@PathVariable(value = "id") Long id,
                                                       @RequestBody Customer customer){
         return ResponseEntity.ok(
             new ApiResponse(HttpStatus.OK.value(),"Customer Updated",service.update(id,customer))

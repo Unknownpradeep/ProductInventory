@@ -9,7 +9,5 @@ import com.hepl.product.model.Product;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
-    List<Product> findByCategoryObjId(Long id);
-
-    List<Product> findByCustomerObjId(Long id);
+    List<Product> findByDivisionId(Long id);
 }

@@ -6,8 +6,13 @@ import lombok.Data;
 public class OrderItemResponseDto {
     private Long productId;
     private String productName;
-    private double price;
+    private String productCode;
+    private String divisionName;
     private int quantity;
+    private double price;
+    private double discount;
+    private double gstpercentage;
+    private double taxamount;
     private double totalPrice;
-    private String category;
+    private String status;
 }

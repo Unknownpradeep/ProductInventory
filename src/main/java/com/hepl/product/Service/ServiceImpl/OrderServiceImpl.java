@@ -1,5 +1,6 @@
 package com.hepl.product.Service.ServiceImpl;
 
+import java.io.File;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,7 @@ import com.hepl.product.Repository.OrderItemRepository;
 import com.hepl.product.Repository.OrderRepository;
 import com.hepl.product.Repository.ProductRepository;
 import com.hepl.product.Service.OrderService;
+import com.hepl.product.Util.QrGenerator;
 import com.hepl.product.model.Customer;
 import com.hepl.product.model.Order;
 import com.hepl.product.model.OrderItem;
@@ -36,6 +38,17 @@ public class OrderServiceImpl implements OrderService {
     public List<OrderResponseDto> listAll() {
         return orderRepository.findAll().stream().map(this::mapToDto).toList();
     }
+    @Override
+public List<OrderResponseDto> saveMultiple(List<OrderRequestDto> orders) {
+
+    List<OrderResponseDto> responseList = new ArrayList<>();
+
+    for (OrderRequestDto dto : orders) {
+        responseList.add(save(dto));  
+    }
+
+    return responseList;
+}
 
     @Override
     public OrderResponseDto get(Long id) {
@@ -45,50 +58,113 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderResponseDto save(OrderRequestDto dto) {
-        Customer customer = customerRepository.findById(dto.getCustomerId())
-                .orElseThrow(() -> new RuntimeException("Customer Not Found"));
+public OrderResponseDto save(OrderRequestDto dto) {
 
-        Order order = new Order();
-        order.setOrderCode("ORD" + System.currentTimeMillis());
-        order.setCustomer(customer);
-        order.setCustomerName(customer.getName());
-        order.setCustomerEmail(customer.getEmail());
-        order.setShippingAddress(dto.getShippingAddress());
-        order.setStatus("PENDING");
-        order.setPaymentStatus("UNPAID");
-        order.setOrderDate(LocalDateTime.now());
-        order.setUpdatedAt(LocalDateTime.now());
+    Customer customer = customerRepository.findById(dto.getCustomerId())
+            .orElseThrow(() -> new RuntimeException("Customer Not Found"));
 
-        Order savedOrder = orderRepository.save(order);
+    Order order = new Order();
+    order.setOrderCode("ORD" + System.currentTimeMillis());
+    order.setCustomer(customer);
+    order.setCustomerName(customer.getName());
+    order.setCustomerEmail(customer.getEmail());
+    order.setStatus("PENDING");
+    order.setPaymentstatus("PENDING");
 
-        List<OrderItem> items = new ArrayList<>();
-        double totalAmount = 0;
+   
+      order.setShippingAddress(customer.getAddress());
 
-        for (OrderItemDto itemDto : dto.getOrderItems()) {
-            Product product = productRepository.findById(itemDto.getProductId())
-                    .orElseThrow(() -> new RuntimeException("Product Not Found: " + itemDto.getProductId()));
 
-            OrderItem item = new OrderItem();
-            item.setOrder(savedOrder);
-            item.setProduct(product);
-            item.setProductName(product.getName());
-            item.setProductCode(product.getCode());
-            item.setCategoryName(product.getCategory());
-            item.setQuantity(itemDto.getQuantity());
-            item.setPrice(product.getPrice());
-            item.setTotalPrice(product.getPrice() * itemDto.getQuantity());
+    order.setOrderDate(LocalDateTime.now());
+    order.setUpdatedAt(LocalDateTime.now());
+   
+    List<OrderItem> items = new ArrayList<>();
+    double subTotal =  0;
+   double totalDiscount = 0;
+    double totalTax = 0;
+    double finalTotal = 0;
 
-            items.add(item);
-            totalAmount += item.getTotalPrice();
-        }
+    for (OrderItemDto itemDto : dto.getOrderItems()) {
 
-        orderItemRepository.saveAll(items);
-        savedOrder.setTotalAmount(totalAmount);
-        orderRepository.save(savedOrder);
+        Product product = productRepository.findById(itemDto.getProductId())
+                .orElseThrow(() -> new RuntimeException("Product Not Found: " + itemDto.getProductId()));
 
-        return mapToDto(savedOrder);
+        OrderItem item = new OrderItem();
+        item.setOrder(order);  
+
+        double price = product.getPrice();
+        int qty = itemDto.getQuantity();
+
+        double base = price * qty;
+        subTotal += base;
+
+        double discountAmt = (base * itemDto.getDiscount()) / 100;
+        totalDiscount += discountAmt;
+
+        double afterDiscount = base - discountAmt;
+
+        double tax = (afterDiscount * itemDto.getGstpercentage()) / 100;
+        totalTax += tax;
+
+        double finalAmount = afterDiscount + tax;
+
+
+        item.setProduct(product);
+        item.setProductName(product.getName());
+        item.setProductCode(product.getCode());
+        item.setDivisionName(product.getDivision() != null ? product.getDivision().getName() : null);
+        item.setQuantity(qty);
+        item.setPrice(price);
+        item.setDiscount(itemDto.getDiscount());
+        item.setGstpercentage(itemDto.getGstpercentage());
+        item.setTaxamount(tax);
+        item.setTotalPrice(finalAmount);    
+
+        items.add(item);
+
+        finalTotal += finalAmount;
     }
+
+    order.setTotalPrice(finalTotal);
+
+    order.setSubTotal(subTotal);
+   order.setTotalDiscount(totalDiscount);
+    order.setTotalTax(totalTax);
+
+
+    order.setOrderItems(items);
+   
+
+    
+    Order savedOrder = orderRepository.save(order);
+
+  String qrText = "http://localhost:8080/api/v1/orders/code/" + savedOrder.getOrderCode();
+
+
+    String folderPath = "qr-codes/";
+    String filePath = folderPath + savedOrder.getOrderCode() + ".png";
+
+
+    File folder = new File(folderPath);
+         if (!folder.exists()) {
+            folder.mkdirs();
+         }
+
+    try {
+
+       QrGenerator.generateQrCode(qrText, filePath);
+
+
+       savedOrder.setQrCodePath(filePath);
+
+    } catch (Exception e) {
+    System.out.println("QR generation failed, but order saved");
+   }
+
+
+    savedOrder=orderRepository.save(savedOrder);
+    return mapToDto(savedOrder);
+}
 
     @Override
     public OrderResponseDto update(Long id, OrderRequestDto dto) {
@@ -101,7 +177,7 @@ public class OrderServiceImpl implements OrderService {
         order.setCustomer(customer);
         order.setCustomerName(customer.getName());
         order.setCustomerEmail(customer.getEmail());
-        order.setShippingAddress(dto.getShippingAddress());
+        
         order.setUpdatedAt(LocalDateTime.now());
 
         orderItemRepository.deleteAll(orderItemRepository.findByOrderId(order.getId()));
@@ -118,17 +194,18 @@ public class OrderServiceImpl implements OrderService {
             item.setProduct(product);
             item.setProductName(product.getName());
             item.setProductCode(product.getCode());
-            item.setCategoryName(product.getCategory());
+            item.setDivisionName(product.getDivision() != null ? product.getDivision().getName() : null);
             item.setQuantity(itemDto.getQuantity());
             item.setPrice(product.getPrice());
             item.setTotalPrice(product.getPrice() * itemDto.getQuantity());
+          
 
             items.add(item);
             totalAmount += item.getTotalPrice();
         }
 
         orderItemRepository.saveAll(items);
-        order.setTotalAmount(totalAmount);
+        order.setTotalPrice(totalAmount);
 
         return mapToDto(orderRepository.save(order));
     }
@@ -146,10 +223,14 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponseDto updatePaymentStatus(Long id, String paymentStatus) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order Not Found"));
-        order.setPaymentStatus(paymentStatus);
+        order.setPaymentstatus(paymentStatus);
         order.setUpdatedAt(LocalDateTime.now());
         return mapToDto(orderRepository.save(order));
     }
+    @Override
+         public OrderResponseDto getByCode(String orderCode) {
+             return mapToDto(orderRepository.findByOrderCode(orderCode));
+         }
 
     @Override
     public void delete(Long id) {
@@ -172,17 +253,34 @@ public class OrderServiceImpl implements OrderService {
         dto.setId(order.getId());
         dto.setOrderCode(order.getOrderCode());
         dto.setOrderDate(order.getOrderDate());
-        dto.setStatus(order.getStatus());
-        dto.setPaymentStatus(order.getPaymentStatus());
-        dto.setShippingAddress(order.getShippingAddress());
-        dto.setTotalAmount(order.getTotalAmount());
+        //dto.setSubTotal(order.getSubTotal());
+       // dto.setTotalDiscount(order.getTotalDiscount());
+       // dto.setTotalTax(order.getTotalTax());
+        dto.setFinalAmount(order.getTotalPrice());
+        Double SubTotal = order.getSubTotal();
+        Double discount = order.getTotalDiscount();
+        Double tax = order.getTotalTax();
+
+        dto.setSubTotal(SubTotal == null ? 0.0 : SubTotal);
+        dto.setTotalDiscount(discount == null ? 0.0 : discount);
+        dto.setTotalTax(tax == null ? 0.0 : tax);
+        
+
+      
+       
 
         if (order.getCustomer() != null) {
             CustomerResponseDto customerDto = new CustomerResponseDto();
             customerDto.setId(order.getCustomer().getId());
+           
             customerDto.setName(order.getCustomer().getName());
             customerDto.setEmail(order.getCustomer().getEmail());
-            dto.setCustomer(customerDto);
+            customerDto.setAddress(order.getCustomer().getAddress());
+            customerDto.setState(order.getCustomer().getState());
+             customerDto.setCountry(order.getCustomer().getCountry());
+            customerDto.setPincode(order.getCustomer().getPincode());
+            
+            dto.setCustomer(List.of(customerDto));
         }
 
         List<OrderItem> items = orderItemRepository.findByOrderId(order.getId());
@@ -190,12 +288,24 @@ public class OrderServiceImpl implements OrderService {
             OrderItemResponseDto itemDto = new OrderItemResponseDto();
             itemDto.setProductId(item.getProduct().getId());
             itemDto.setProductName(item.getProductName() != null ? item.getProductName() : item.getProduct().getName());
-            itemDto.setPrice(item.getPrice());
+            itemDto.setProductCode(item.getProductCode());
+            itemDto.setDivisionName(item.getDivisionName() != null ? item.getDivisionName() :
+                    (item.getProduct().getDivision() != null ? item.getProduct().getDivision().getName() : null));
+            
+                  
             itemDto.setQuantity(item.getQuantity());
+            itemDto.setPrice(item.getPrice());
+            itemDto.setDiscount(item.getDiscount());
+            itemDto.setTaxamount(item.getTaxamount());
+            itemDto.setGstpercentage(item.getGstpercentage());
+           
             itemDto.setTotalPrice(item.getTotalPrice());
-            itemDto.setCategory(item.getCategoryName() != null ? item.getCategoryName() : item.getProduct().getCategory());
+            itemDto.setStatus(item.getStatus());
+            
             return itemDto;
         }).toList();
+
+
 
         dto.setProducts(productDtos);
         return dto;

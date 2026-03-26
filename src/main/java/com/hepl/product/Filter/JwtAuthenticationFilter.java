@@ -12,6 +12,12 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import java.util.Collections;
+
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -41,10 +47,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
         
-        // Allow login and register endpoints
+        // Allow login, register and swagger endpoints
         if (path.contains("/api/v1/auth/login") || 
             path.contains("/api/v1/auth/register") ||
-            path.contains("/api/v1/auth/validate")) {
+            path.contains("/api/v1/auth/validate") ||
+            path.contains("/swagger-ui") ||
+            path.contains("/v3/api-docs") ||
+            path.contains("/swagger-resources") ||
+            path.contains("/webjars")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -67,12 +77,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         if (username != null && jwtUtil.validateToken(token, username)) {
-            filterChain.doFilter(request, response);
-        } else {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-            response.getWriter().write("{\"status\":401,\"message\":\"Unauthorized - Token required\",\"data\":null}");
-        }
+
+    UsernamePasswordAuthenticationToken authToken =
+            new UsernamePasswordAuthenticationToken(
+                    username,
+                    null,
+                    Collections.singletonList(new SimpleGrantedAuthority("USER"))
+            );
+
+    SecurityContextHolder.getContext().setAuthentication(authToken);
+
+    filterChain.doFilter(request, response);
+
+} else {
+    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    response.setContentType("application/json");
+    response.setCharacterEncoding("UTF-8");
+    response.getWriter().write("{\"status\":401,\"message\":\"Unauthorized - Token required\",\"data\":null}");
+}
     }
 }

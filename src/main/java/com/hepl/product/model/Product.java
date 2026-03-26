@@ -1,5 +1,7 @@
 package com.hepl.product.model;
 
+import java.time.LocalDate;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -16,8 +18,6 @@ public class Product{
      @GeneratedValue(strategy = GenerationType.IDENTITY)
      private Long id;
 
-     @Column(name = "category")
-     private String category;
 
      @Column(unique=true,nullable=false)
      private String code;
@@ -26,17 +26,17 @@ public class Product{
      private double price;
      private int quantity;
 
-     @Column(name = "customer")
-     private String customer;
+     private LocalDate ExpiryDate;
+     private int saleableStock;
+     private int nonSaleableStock;
+     private String sku;
+     private String uom;
 
-     @Column(name = "email")
-     private String email;
 
+    
      @ManyToOne
-     @JoinColumn(name = "category_id")
-     private Category categoryObj;
+     @JoinColumn(name = "Division_id")
+     private Division Division;
 
-     @ManyToOne
-     @JoinColumn(name="customer_id")
-     private Customer customerObj;
+    
 }

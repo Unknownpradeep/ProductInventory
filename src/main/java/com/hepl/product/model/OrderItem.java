@@ -33,12 +33,21 @@ public class OrderItem {
     @Column(name = "product_code")
     private String productCode;
 
-    @Column(name = "category_name")
-    private String categoryName;
+    @Column(name = "Division_name")
+    private String DivisionName;
 
     private int quantity;
 
     private double price;
 
+    private double discount;
+
+    private double taxamount;
+
+    private double gstpercentage;
+
     private double totalPrice;
+
+     private String status;
+
 }

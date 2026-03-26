@@ -15,4 +15,7 @@ public interface OrderService {
     void delete(Long id);
     List<OrderResponseDto> findByCustomer(Long customerId);
     List<OrderResponseDto> findByStatus(String status);
+    List<OrderResponseDto> saveMultiple(List<OrderRequestDto> orders);
+  
+    OrderResponseDto getByCode(String orderCode);
 }

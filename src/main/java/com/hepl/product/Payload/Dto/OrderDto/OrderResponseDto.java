@@ -12,10 +12,12 @@ public class OrderResponseDto {
     private Long id;
     private String orderCode;
     private LocalDateTime orderDate;
-    private double subTotal;
+    private double baseTotal;
     private double totalDiscount;
     private double totalTax;
     private double finalAmount;
+    private String status;
+    private String paymentStatus;
     
     private List<CustomerResponseDto> customer;
     private List<OrderItemResponseDto> products;

@@ -10,6 +10,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.hepl.product.Payload.Response.ApiResponse;
+
 @RestControllerAdvice
 public class GloabalExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -36,6 +38,11 @@ public class GloabalExceptionHandler {
 
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
-
+     @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ApiResponse> handleRuntime(RuntimeException ex) {
+        return ResponseEntity.badRequest().body(
+            new ApiResponse(400, ex.getMessage(), null)
+        );
+    }
 
 }

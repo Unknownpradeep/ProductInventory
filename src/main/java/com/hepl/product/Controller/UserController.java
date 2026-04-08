@@ -22,9 +22,17 @@ public class UserController {
     private UserService service;
 
     @GetMapping
-    public ResponseEntity<ApiResponse> getAllUsers(){
+    public ResponseEntity<ApiResponse> getAllUsers(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String username,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String status,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = "asc") String sortDir) {
         return ResponseEntity.ok(
-            new ApiResponse(HttpStatus.OK.value(),"Success",service.listAll())
+            new ApiResponse(HttpStatus.OK.value(),"Success",service.listAll(search, username, email, status, page, size, sortBy, sortDir))
         );
     }
 

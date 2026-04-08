@@ -3,6 +3,10 @@ package com.hepl.product.Service.ServiceImpl;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.hepl.product.Repository.RoleRepository;
@@ -21,8 +25,10 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
 
     @Override
-    public List<User> listAll() {
-        return repository.findAll();
+    public Page<User> listAll(String search, String username, String email, String status, int page, int size, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return repository.searchAndFilter(search, username, email, status, pageable);
     }
 
     @Override
@@ -55,7 +61,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void delete(Integer id) {
-        repository.deleteById(id);
+        User existing = repository.findById(id)
+            .orElseThrow(() -> new RuntimeException("User Not Found"));
+        existing.setDeleted(true);
+        repository.save(existing);
+       // repository.deleteById(id); --- IGNORE ---
     }
 
     @Override

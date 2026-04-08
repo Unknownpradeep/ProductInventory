@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hepl.product.Payload.Dto.DivisionDTO.DivisionRequestDto;
@@ -30,9 +31,15 @@ public class DivisionController {
     private DivisionService service;
 
     @GetMapping
-    public ResponseEntity<ApiResponse> getAllDivisions(){
+    public ResponseEntity<ApiResponse> getAllDivisions(
+        @RequestParam(required = false) String search,
+        @RequestParam(value = "page", defaultValue = "0") int page,
+        @RequestParam(value = "size", defaultValue = "10") int size,
+        @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
+        @RequestParam(value = "sortDir", defaultValue = "asc") String sortDir
+    ){
         return ResponseEntity.ok(
-            new ApiResponse(HttpStatus.OK.value(),"Success",service.listAll())
+            new ApiResponse(HttpStatus.OK.value(),"Success",service.listAll(search, page, size, sortBy, sortDir))
         );
     }
     @GetMapping("/{id}")

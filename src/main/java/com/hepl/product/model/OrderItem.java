@@ -49,5 +49,6 @@ public class OrderItem {
     private double totalPrice;
 
      private String status;
+     private boolean deleted=false;
 
 }

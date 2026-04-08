@@ -5,6 +5,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.hepl.product.Payload.Dto.CustomerDto.CustomerResponseDto;
@@ -17,6 +21,7 @@ import com.hepl.product.Repository.OrderItemRepository;
 import com.hepl.product.Repository.OrderRepository;
 import com.hepl.product.Repository.ProductRepository;
 import com.hepl.product.Service.OrderService;
+import com.hepl.product.Service.StockService;
 import com.hepl.product.Util.QrGenerator;
 import com.hepl.product.model.Customer;
 import com.hepl.product.model.Order;
@@ -33,10 +38,15 @@ public class OrderServiceImpl implements OrderService {
     private final OrderItemRepository orderItemRepository;
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
+    private final StockService stockService;
+    
 
-    @Override
-    public List<OrderResponseDto> listAll() {
-        return orderRepository.findAll().stream().map(this::mapToDto).toList();
+
+    public Page<OrderResponseDto> listAll(String search, String status, String paymentStatus, Long customerId, int page, int size, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<Order> ordersPage = orderRepository.searchAndFilter(search, status, paymentStatus, customerId, pageable);
+        return ordersPage.map(this::mapToDto);
     }
     @Override
 public List<OrderResponseDto> saveMultiple(List<OrderRequestDto> orders) {
@@ -79,8 +89,8 @@ public OrderResponseDto save(OrderRequestDto dto) {
     order.setUpdatedAt(LocalDateTime.now());
    
     List<OrderItem> items = new ArrayList<>();
-    double subTotal =  0;
-   double totalDiscount = 0;
+    double baseTotal =  0;
+    double totalDiscount = 0;
     double totalTax = 0;
     double finalTotal = 0;
 
@@ -95,18 +105,18 @@ public OrderResponseDto save(OrderRequestDto dto) {
         double price = product.getPrice();
         int qty = itemDto.getQuantity();
 
-        double base = price * qty;
-        subTotal += base;
+        double base =Math.round(price * qty) ;
+        baseTotal += base;
 
-        double discountAmt = (base * itemDto.getDiscount()) / 100;
+        double discountAmt = Math.round((base * itemDto.getDiscount()) / 100);
         totalDiscount += discountAmt;
 
         double afterDiscount = base - discountAmt;
 
-        double tax = (afterDiscount * itemDto.getGstpercentage()) / 100;
+        double tax =Math.round((afterDiscount * itemDto.getGstpercentage()) / 100);
         totalTax += tax;
 
-        double finalAmount = afterDiscount + tax;
+        double finalAmount = Math.round(afterDiscount + tax);
 
 
         item.setProduct(product);
@@ -125,10 +135,10 @@ public OrderResponseDto save(OrderRequestDto dto) {
         finalTotal += finalAmount;
     }
 
-    order.setTotalPrice(finalTotal);
+    order.setTotalPrice( finalTotal);
 
-    order.setSubTotal(subTotal);
-   order.setTotalDiscount(totalDiscount);
+    order.setBaseTotal(baseTotal);
+    order.setTotalDiscount(totalDiscount);
     order.setTotalTax(totalTax);
 
 
@@ -214,6 +224,35 @@ public OrderResponseDto save(OrderRequestDto dto) {
     public OrderResponseDto updateStatus(Long id, String status) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order Not Found"));
+        String currentStatus = order.getStatus();
+
+        // Prevent changing status of delivered order
+        if ("DELIVERED".equalsIgnoreCase(currentStatus)) {
+            throw new RuntimeException("Cannot change status of a delivered order");
+        }
+
+        // Check stock when confirming
+        if ("PENDING".equalsIgnoreCase(currentStatus) && "CONFIRMED".equalsIgnoreCase(status)) {
+            for (OrderItem item : order.getOrderItems()) {
+                int available = stockService.getAvailableStock(item.getProduct().getId()).getQuantity();
+                if (available < item.getQuantity()) {
+                    throw new RuntimeException("Insufficient stock for product: " + item.getProduct().getName());
+                }
+            }
+        }
+
+        // Deduct product quantity when order is DELIVERED
+        if ("DELIVERED".equalsIgnoreCase(status)) {
+            List<OrderItem> items = orderItemRepository.findByOrderId(order.getId());
+            for (OrderItem item : items) {
+                Product product = item.getProduct();
+                int newQty = product.getQuantity() - item.getQuantity();
+                if (newQty < 0) newQty = 0;
+                product.setQuantity(newQty);
+                productRepository.save(product);
+            }
+        }
+
         order.setStatus(status);
         order.setUpdatedAt(LocalDateTime.now());
         return mapToDto(orderRepository.save(order));
@@ -234,8 +273,9 @@ public OrderResponseDto save(OrderRequestDto dto) {
 
     @Override
     public void delete(Long id) {
-        orderItemRepository.deleteAll(orderItemRepository.findByOrderId(id));
-        orderRepository.deleteById(id);
+        Order existing=orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Order Not Found"));
+        existing.setDeleted(true);
+        orderRepository.save(existing);
     }
 
     @Override
@@ -248,6 +288,8 @@ public OrderResponseDto save(OrderRequestDto dto) {
         return orderRepository.findByStatus(status).stream().map(this::mapToDto).toList();
     }
 
+    
+
     private OrderResponseDto mapToDto(Order order) {
         OrderResponseDto dto = new OrderResponseDto();
         dto.setId(order.getId());
@@ -257,11 +299,13 @@ public OrderResponseDto save(OrderRequestDto dto) {
        // dto.setTotalDiscount(order.getTotalDiscount());
        // dto.setTotalTax(order.getTotalTax());
         dto.setFinalAmount(order.getTotalPrice());
-        Double SubTotal = order.getSubTotal();
+        dto.setStatus(order.getStatus());
+        dto.setPaymentStatus(order.getPaymentstatus());
+        Double baseTotal = order.getBaseTotal();
         Double discount = order.getTotalDiscount();
         Double tax = order.getTotalTax();
 
-        dto.setSubTotal(SubTotal == null ? 0.0 : SubTotal);
+        dto.setBaseTotal(baseTotal == null ? 0.0 : baseTotal);
         dto.setTotalDiscount(discount == null ? 0.0 : discount);
         dto.setTotalTax(tax == null ? 0.0 : tax);
         
@@ -279,6 +323,7 @@ public OrderResponseDto save(OrderRequestDto dto) {
             customerDto.setState(order.getCustomer().getState());
              customerDto.setCountry(order.getCustomer().getCountry());
             customerDto.setPincode(order.getCustomer().getPincode());
+            
             
             dto.setCustomer(List.of(customerDto));
         }
@@ -298,6 +343,7 @@ public OrderResponseDto save(OrderRequestDto dto) {
             itemDto.setDiscount(item.getDiscount());
             itemDto.setTaxamount(item.getTaxamount());
             itemDto.setGstpercentage(item.getGstpercentage());
+
            
             itemDto.setTotalPrice(item.getTotalPrice());
             itemDto.setStatus(item.getStatus());
@@ -310,4 +356,5 @@ public OrderResponseDto save(OrderRequestDto dto) {
         dto.setProducts(productDtos);
         return dto;
     }
+ 
 }

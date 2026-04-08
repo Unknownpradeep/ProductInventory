@@ -1,7 +1,10 @@
 package com.hepl.product.Service.ServiceImpl;
 
-import java.util.List;
 
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.hepl.product.Repository.PermissionRepository;
@@ -17,9 +20,13 @@ public class PermissionServiceImpl implements PermissionService {
     private final PermissionRepository repository;
 
     @Override
-    public List<Permission> listAll() {
-        return repository.findAll();
+    public Page<Permission> listAll(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Permission> permissions = repository.findByDeletedFalse(pageable);
+        return permissions;
+        
     }
+ 
 
     @Override
     public Permission get(Long id) {
@@ -42,6 +49,9 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     public void delete(Long id) {
-        repository.deleteById(id);
+        Permission existing = repository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Permission Not Found"));
+        existing.setDeleted(true);
+        repository.save(existing);  
     }
 }

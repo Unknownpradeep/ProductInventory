@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hepl.product.Payload.Dto.ProductDto.ProductRequestDto;
@@ -33,9 +34,18 @@ public class ProductController {
      private  ProductService service;
 
      @GetMapping
-     public ResponseEntity<ApiResponse> getAllProducts(){
+     public ResponseEntity<ApiResponse> getAllProducts(
+             @RequestParam(required = false) String search,
+             @RequestParam(required = false) String code,
+             @RequestParam(required = false) Long divisionId,
+             @RequestParam(required = false) Double minPrice,
+             @RequestParam(required = false) Double maxPrice,
+             @RequestParam(value = "page", defaultValue = "0") int page,
+             @RequestParam(value = "size", defaultValue = "10") int size,
+             @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
+             @RequestParam(value = "sortDir", defaultValue = "asc") String sortDir) {
         return ResponseEntity.ok(
-         new ApiResponse(HttpStatus.OK.value(),"Success",service.listAll()));
+         new ApiResponse(HttpStatus.OK.value(),"Success",service.listAll(search, code, divisionId, minPrice, maxPrice, page, size, sortBy, sortDir)));
      }
 
      @GetMapping("/{id}")

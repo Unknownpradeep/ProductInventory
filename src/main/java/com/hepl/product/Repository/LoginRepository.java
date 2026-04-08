@@ -1,5 +1,6 @@
 package com.hepl.product.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,4 +14,5 @@ public interface LoginRepository extends JpaRepository<Login, Long> {
     Optional<Login> findByEmail(String email);
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
+    List<Login> findByDeletedFalse();
 }

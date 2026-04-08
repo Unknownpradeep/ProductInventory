@@ -19,5 +19,11 @@ public class CustomerRequestDto {
     @NotBlank(message = "Country is required")
     private String country;
     @NotBlank(message = "Pincode is required")
-    private String pincode;                                        
+    private String pincode;    
+    
+    
+
+
+    
+
 }

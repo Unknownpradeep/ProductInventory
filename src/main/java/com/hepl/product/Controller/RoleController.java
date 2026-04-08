@@ -22,11 +22,17 @@ public class RoleController {
     private RoleService service;
 
     @GetMapping
-    public ResponseEntity<ApiResponse> getAllRoles(){
+    public ResponseEntity<ApiResponse> getAllRoles(
+            @RequestParam(required = false) String search,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = "asc") String sortDir) {
         return ResponseEntity.ok(
-            new ApiResponse(HttpStatus.OK.value(),"Success",service.listAll())
+            new ApiResponse(HttpStatus.OK.value(),"Success",service.listAll(search, page, size, sortBy, sortDir))
         );
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse> getRole(@PathVariable(value= "id") Long id){

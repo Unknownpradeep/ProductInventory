@@ -20,12 +20,14 @@ public class PermissionController {
     private PermissionService service;
 
     @GetMapping
-    public ResponseEntity<ApiResponse> getAllPermissions(){
+    public ResponseEntity<ApiResponse> getAllPermissions(@RequestParam(value = "page", defaultValue = "0") int page,
+                                                        @RequestParam(value = "size", defaultValue = "10") int size) {
         return ResponseEntity.ok(
-            new ApiResponse(HttpStatus.OK.value(),"Success",service.listAll())
+            new ApiResponse(HttpStatus.OK.value(), "Success", service.listAll(page, size))
         );
     }
 
+  
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse> getPermission(@PathVariable(value="id") Long id){
         return ResponseEntity.ok(

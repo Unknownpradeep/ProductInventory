@@ -16,6 +16,7 @@ public class ProductResponseDto {
     private double price;
     private int quantity;
      private LocalDate ExpiryDate;
+    private String DivisionName; 
 }
      
 

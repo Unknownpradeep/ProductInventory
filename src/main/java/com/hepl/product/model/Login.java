@@ -21,4 +21,5 @@ public class Login {
     private boolean active;
     private LocalDateTime lastLogin;
     private LocalDateTime createdAt = LocalDateTime.now();
+    private boolean deleted =false;
 }

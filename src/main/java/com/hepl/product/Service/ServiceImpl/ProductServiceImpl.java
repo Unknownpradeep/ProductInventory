@@ -2,7 +2,11 @@ package com.hepl.product.Service.ServiceImpl;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+
 import org.springframework.stereotype.Service;
 
 import com.hepl.product.Payload.Dto.ProductDto.ProductRequestDto;
@@ -18,14 +22,16 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
+    
 
     private final ProductRepository repository;
     private final DivisionRepository divisionRepository;
 
     @Override
-    public List<ProductResponseDto> listAll() {
-        List<Product> p = repository.findAll(Sort.by(Sort.Direction.ASC, "price"));
-        return p.stream().map(this::mapToDto).toList();
+    public Page<ProductResponseDto> listAll(String search, String code, Long divisionId, Double minPrice, Double maxPrice, int page, int size, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return repository.searchAndFilter(search, code, divisionId, minPrice, maxPrice, pageable).map(this::mapToDto);
     }
 
     @Override
@@ -41,16 +47,31 @@ public class ProductServiceImpl implements ProductService {
         p.setName(dto.getName());
         p.setPrice(dto.getPrice());
         p.setQuantity(dto.getQuantity());
+        
         p.setCode("P" + System.currentTimeMillis());
         p.setSku(dto.getSku());
         p.setUom(dto.getUom());
         p.setExpiryDate(dto.getExpiryDate());
         p.setSaleableStock(dto.getSaleableStock());
         p.setNonSaleableStock(dto.getNonSaleableStock());
-         Division division = divisionRepository.findById(dto.getDivisionId())
-            .orElseThrow(() -> new RuntimeException("Division not found"));
-            p.setDivision(division);
+        String divisionName = dto.getDivisionName() != null ? dto.getDivisionName().trim() : null;
 
+       if (divisionName == null || divisionName.isBlank()) {
+        throw new RuntimeException("Division name is required");
+       }
+        // if (dto.getDivisionName() == null || dto.getDivisionName().isBlank()) {
+        //   throw new RuntimeException("Division name is required");
+        // }
+
+        Division division = divisionRepository
+          .findByNameIgnoreCase(divisionName)
+          .orElseThrow(() -> new RuntimeException("Division not found"));
+        p.setDivision(division);
+        p.setDivisionName(division.getName());
+            // .orElseThrow(() -> new RuntimeException("Division not found"));
+            // p.setDivision(division);
+        
+  
         Product saved = repository.save(p);
         return mapToDto(saved);
     }
@@ -63,7 +84,24 @@ public class ProductServiceImpl implements ProductService {
         p.setName(dto.getName());
         p.setPrice(dto.getPrice());
         p.setQuantity(dto.getQuantity());
+        p.setSku(dto.getSku());
+        p.setUom(dto.getUom());
+        p.setExpiryDate(dto.getExpiryDate());
+        p.setSaleableStock(dto.getSaleableStock());
+        p.setNonSaleableStock(dto.getNonSaleableStock());
+         String divisionName = dto.getDivisionName() != null ? dto.getDivisionName().trim() : null;
 
+    if (divisionName == null || divisionName.isBlank()) {
+        throw new RuntimeException("Division name is required");
+    }
+
+    Division division = divisionRepository
+            .findByNameIgnoreCase(divisionName)
+            .orElseThrow(() -> new RuntimeException("Division not found"));
+
+    p.setDivision(division);
+    p.setDivisionName(divisionName);
+    System.out.println("Before save divisionName: " + p.getDivisionName());
       
 
         Product updated = repository.save(p);
@@ -72,7 +110,11 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void delete(Long id) {
-        repository.deleteById(id);
+        Product existing = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product Not Found"));
+        existing.setDeleted(true);
+        repository.save(existing);
+     //   repository.deleteById(id); --- IGNORE ---
     }
 
     @Override
@@ -93,6 +135,15 @@ public class ProductServiceImpl implements ProductService {
         dto.setPrice(product.getPrice());
         dto.setQuantity(product.getQuantity());
         dto.setExpiryDate(product.getExpiryDate());
+        // dto.setSaleableStock(product.getSaleableStock());
+        // dto.setNonSaleableStock(product.getNonSaleableStock());
+        // dto.setSku(product.getSku());
+        // dto.setUom(product.getUom());
+        dto.setDivisionName(
+         product.getDivision() != null 
+          ? product.getDivision().getName() 
+          : null);
         return dto;
     }
 }
+

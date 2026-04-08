@@ -30,6 +30,7 @@ public class User {
     private LocalDateTime createdAt= LocalDateTime.now();
     private LocalDateTime updatedAt= LocalDateTime.now();
     private int createdBy;
+    private boolean deleted=false;
 
     @ManyToMany
     @JoinTable(

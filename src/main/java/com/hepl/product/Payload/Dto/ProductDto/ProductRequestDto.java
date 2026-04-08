@@ -6,6 +6,8 @@ import jakarta.validation.constraints.Positive;
 
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.validation.constraints.Min;
 
 @Data
@@ -20,13 +22,19 @@ public class ProductRequestDto {
 
     @Min(value = 0, message = "Quantity cannot be negative")
     private int quantity;
-    
-     private LocalDate ExpiryDate;
+   
+    //  @JsonProperty("expiryDate")
+    //  @JsonAlias({"ExpiryDate"})
+
+     
+     private LocalDate expiryDate;
+     @JsonProperty("saleableStock")
      private int saleableStock;
+    @JsonProperty("nonSaleableStock")
      private int nonSaleableStock;
      private String sku;
      private String uom;
-    
-    private Long divisionId;
+   @NotBlank(message = "Division name is required")
+    private String divisionName;
 
 }

@@ -1,8 +1,11 @@
 package com.hepl.product.Service.ServiceImpl;
 
-import java.util.List;
-import java.util.stream.Collectors;
 
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.hepl.product.Payload.Dto.DivisionDTO.DivisionRequestDto;
@@ -19,8 +22,10 @@ public class DivisionServiceImpl implements DivisionService {
     private final DivisionRepository repository;
 
     @Override
-    public List<DivisionResponseDto> listAll() {
-        return repository.findAll().stream().map(this::mapToDto).collect(Collectors.toList());
+    public Page<DivisionResponseDto> listAll(String search, int page, int size, String sortBy, String sortDir) {
+       Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+       Pageable pageable = PageRequest.of(page, size, sort);
+       return repository.searchAndFilter(search, pageable).map(this::mapToDto);
     }
 
     @Override
@@ -48,7 +53,9 @@ public class DivisionServiceImpl implements DivisionService {
 
     @Override
     public void delete(Long id) {
-        repository.deleteById(id);
+        Division existing=repository.findById(id).orElseThrow(()->new RuntimeException("Division Not Found"));
+        existing.setDeleted(true);
+        repository.save(existing);
     }
 
     private DivisionResponseDto mapToDto(Division division) {

@@ -25,18 +25,24 @@ public class Product{
      private String name;
      private double price;
      private int quantity;
-
+    @Column(name = "expiry_date")
      private LocalDate ExpiryDate;
+     
      private int saleableStock;
      private int nonSaleableStock;
      private String sku;
      private String uom;
+     private boolean deleted=false;
 
 
     
      @ManyToOne
-     @JoinColumn(name = "Division_id")
-     private Division Division;
+     @JoinColumn(name = "division_id")
+     private Division division;
+
+    
+     @Column(name = "division_name")
+     private String divisionName;
 
     
 }

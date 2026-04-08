@@ -21,6 +21,7 @@ public class Role {
     
     private String name;
     private String description;
+    private boolean deleted=false;
 
     private LocalDateTime createdAt= LocalDateTime.now();
     private LocalDateTime updatedAt= LocalDateTime.now(); 

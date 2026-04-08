@@ -2,6 +2,10 @@ package com.hepl.product.Service.ServiceImpl;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.hepl.product.Repository.PermissionRepository;
@@ -20,9 +24,12 @@ public class RoleServiceImpl implements RoleService {
     private final PermissionRepository permissionRepository;
 
     @Override
-    public List<Role> listAll() {
-        return repository.findAll();
+    public Page<Role> listAll(String search, int page, int size, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return repository.searchAndFilter(search, pageable);
     }
+
 
     @Override
     public Role get(Long id) {
@@ -45,7 +52,11 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public void delete(Long id) {
-        repository.deleteById(id);
+        Role existing = repository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Role Not Found"));
+        existing.setDeleted(true);
+        repository.save(existing);
+       // repository.deleteById(id); --- IGNORE ---
     }
 
     @Override

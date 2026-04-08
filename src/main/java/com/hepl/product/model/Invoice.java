@@ -1,12 +1,7 @@
 package com.hepl.product.model;
 
 import java.time.LocalDateTime;
-import java.util.List;
-//import java.util.stream.Stream;
 
-//import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -14,23 +9,28 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 
-
-
 @Data
 @Entity
-@Table(name = "orders")  
-public class Order {
+@Table(name = "invoices")
+public class Invoice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(unique = true, nullable = false)
+    private String invoiceCode;
+
+    @OneToOne
+    @JoinColumn(name = "order_id", unique = true)
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    private Order order;
+
+    @Column(name = "order_code")
     private String orderCode;
 
     @ManyToOne
@@ -43,31 +43,18 @@ public class Order {
     @Column(name = "customer_email")
     private String customerEmail;
 
-    @Column(name = "total_amount")
-    private double totalPrice;
+    @Column(name = "customer_address")
+    private String customerAddress;
 
-    private String status;
+    private double baseTotal;
+    private double totalDiscount;
+    private double totalTax;
+    private double finalAmount;
 
-    private String paymentstatus;
+    private String status; // PENDING, APPROVED, CANCELLED
 
-    private String shippingAddress;
-    private Double baseTotal;
-    private Double TotalDiscount;
-    private Double TotalTax;
-
-    private String qrCodePath;
-    @Column(name = "deleted")
     private boolean deleted = false;
 
-   
-
-    private LocalDateTime orderDate = LocalDateTime.now();
-
+    private LocalDateTime invoiceDate = LocalDateTime.now();
     private LocalDateTime updatedAt = LocalDateTime.now();
-
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
-    @com.fasterxml.jackson.annotation.JsonIgnore
-    private List<OrderItem> orderItems;
-
-    
 }

@@ -40,9 +40,17 @@ public class OrderController {
     private OrderRepository orderRepository;
 
     @GetMapping
-    public ResponseEntity<ApiResponse> getAllOrders() {
+    public ResponseEntity<ApiResponse> getAllOrders(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String paymentStatus,
+            @RequestParam(required = false) Long customerId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = "asc") String sortDir) {
         return ResponseEntity.ok(
-            new ApiResponse(HttpStatus.OK.value(), "Success", service.listAll())
+            new ApiResponse(HttpStatus.OK.value(), "Success", service.listAll(search, status, paymentStatus, customerId, page, size, sortBy, sortDir))
         );
     }
 
@@ -91,13 +99,14 @@ public class OrderController {
         );
     }
 
-    @DeleteMapping("/id/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse> deleteOrder(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.ok(
             new ApiResponse(HttpStatus.OK.value(), "Order Deleted", null)
         );
     }
+  
 
     @GetMapping("/customer/{customerId}")
     public ResponseEntity<ApiResponse> getOrdersByCustomer(@PathVariable Long customerId) {

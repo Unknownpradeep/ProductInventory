@@ -20,7 +20,7 @@ public class Customer {
     private String state;
     private String country;
     private String pincode;
-
+    private boolean deleted=false;// Soft delete flag 
     
     
 }

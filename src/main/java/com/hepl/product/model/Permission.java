@@ -21,4 +21,5 @@ public class Permission {
     
     @ManyToMany(mappedBy = "permissions")
     private List<Role> roles;
+    private boolean deleted =false;
 }

@@ -11,12 +11,18 @@ public class ProductResponseDto {
 
 
     private String name;
-;
+
 
     private double price;
     private int quantity;
      private LocalDate ExpiryDate;
     private String DivisionName; 
+
+    private String sku;
+    private String uom;
+       
+    private int saleableStock;
+    private int nonSaleableStock;
 }
      
 

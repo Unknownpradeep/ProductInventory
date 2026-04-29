@@ -39,6 +39,7 @@ public class DivisionServiceImpl implements DivisionService {
     public DivisionResponseDto save(DivisionRequestDto division) {
         Division d = new Division();
         d.setName(division.getName());
+        d.setBatchcode("DIV"+System.currentTimeMillis());
         Division saved = repository.save(d);
         return mapToDto(saved);
     }
@@ -62,6 +63,7 @@ public class DivisionServiceImpl implements DivisionService {
         DivisionResponseDto dto = new DivisionResponseDto();
         dto.setId(division.getId());
         dto.setName(division.getName());
+        dto.setBatchcode(division.getBatchcode());
         return dto;
     }
 }

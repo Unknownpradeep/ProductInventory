@@ -8,5 +8,6 @@ public class DivisionResponseDto {
     private Long id;
 
     private String name;
+    private String batchcode;
 
 }

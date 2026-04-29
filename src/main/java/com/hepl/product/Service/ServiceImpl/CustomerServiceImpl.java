@@ -36,6 +36,8 @@ public class CustomerServiceImpl implements CustomerService {
         c.setName(customer.getName());
         c.setEmail(customer.getEmail());
         c.setAddress(customer.getAddress());
+        
+        c.setCountry(customer.getCountry());
         c.setState(customer.getState());
         c.setPincode(customer.getPincode());
         return mapToDto(repository.save(c));

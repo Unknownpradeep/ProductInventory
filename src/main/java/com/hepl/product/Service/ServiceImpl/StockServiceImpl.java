@@ -39,6 +39,7 @@ public class StockServiceImpl implements StockService {
 
         Stock stock = new Stock();
         stock.setProduct(product);
+        stock.setProductName(product.getName());
         stock.setQuantity(dto.getQuantity());
         stock.setType(dto.getType());
 
@@ -62,6 +63,7 @@ public class StockServiceImpl implements StockService {
 
         Product  product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product Not Found"));
+        //String productName = product.getName();
 
         int productQuantity = product.getQuantity();
         int orderQuantity=orderItemRepository.getTotalQuantityByProductId(productId);
@@ -80,6 +82,8 @@ public class StockServiceImpl implements StockService {
 
         StockRespnseDto dto = new StockRespnseDto();
         dto.setProductId(productId);
+        dto.setProductName(product.getName());
+        
         dto.setQuantity(availableStock);
         dto.setType("AVAILABLE");
 
@@ -91,8 +95,10 @@ public class StockServiceImpl implements StockService {
         StockRespnseDto dto = new StockRespnseDto();
         dto.setId(stock.getId());
         dto.setProductId(stock.getProduct().getId());
+        dto.setProductName(
+        stock.getProduct() != null ? stock.getProduct().getName() : null); 
         dto.setQuantity(stock.getQuantity());
-        dto.setDeleted(stock.isDeleted());
+        dto.setCreatedAt(stock.getCreatedAt());
         dto.setType(stock.getType());
 
         return dto;

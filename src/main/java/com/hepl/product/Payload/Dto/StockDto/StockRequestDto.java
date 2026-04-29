@@ -9,6 +9,7 @@ import lombok.Data;
 public class StockRequestDto {
     @NotNull(message = "Product ID is required")
     private Long productId;
+    private String productName;
     @Min(value = 0, message = "Quantity cannot be negative")
     private int quantity;
     @NotBlank(message = "Stock type is required")

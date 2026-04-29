@@ -135,10 +135,10 @@ public class ProductServiceImpl implements ProductService {
         dto.setPrice(product.getPrice());
         dto.setQuantity(product.getQuantity());
         dto.setExpiryDate(product.getExpiryDate());
-        // dto.setSaleableStock(product.getSaleableStock());
-        // dto.setNonSaleableStock(product.getNonSaleableStock());
-        // dto.setSku(product.getSku());
-        // dto.setUom(product.getUom());
+        dto.setSaleableStock(product.getSaleableStock());
+        dto.setNonSaleableStock(product.getNonSaleableStock());
+        dto.setSku(product.getSku());
+        dto.setUom(product.getUom());
         dto.setDivisionName(
          product.getDivision() != null 
           ? product.getDivision().getName() 

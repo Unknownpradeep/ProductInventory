@@ -19,8 +19,9 @@ public class Stock {
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
+    private String productName;
     private int quantity;
-    private String type; // "saleable" or "non-saleable"
+    private String type;
     private LocalDateTime createdAt= LocalDateTime.now();
-    private boolean deleted=false; // Soft delete flag
+    private boolean deleted=false;
 }

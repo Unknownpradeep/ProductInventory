@@ -10,7 +10,7 @@ import com.hepl.product.model.Login;
 
 @Repository
 public interface LoginRepository extends JpaRepository<Login, Long> {
-    Optional<Login> findByUsername(String username);
+   Optional<Login> findByUsername(String username);
     Optional<Login> findByEmail(String email);
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);

@@ -15,6 +15,7 @@ import com.hepl.product.model.Product;
 public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByDivisionId(Long id);
     Page<Product> findByDeletedFalse(Pageable pageable);
+    
 
     @Query("SELECT p FROM product p WHERE p.deleted = false AND " +
            "(:search IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR " +

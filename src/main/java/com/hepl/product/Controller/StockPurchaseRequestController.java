@@ -42,6 +42,10 @@ public class StockPurchaseRequestController {
             var product = productRepo.findById(productId)
                     .orElseThrow(() -> new RuntimeException("Product not found"));
 
+            if (product.getExpiryDate() != null && product.getExpiryDate().isBefore(java.time.LocalDate.now())) {
+                throw new RuntimeException("Cannot request stock for expired product: " + product.getName() + " (Expired on " + product.getExpiryDate() + ")");
+            }
+
             StockPurchaseRequest req = new StockPurchaseRequest();
             req.setProduct(product);
             req.setProductName(product.getName());

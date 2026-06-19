@@ -122,7 +122,7 @@ public class StockServiceImpl implements StockService {
 
     @Override
     public List<Stock> findAllEntities() {
-        return stockRepository.findAll();
+        return stockRepository.findAllActive();
     }
 
     private StockRespnseDto mapToDto(Stock stock) {

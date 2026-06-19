@@ -58,6 +58,15 @@ public class ExternalStockRequestController {
                                         "Product not found for code: " + item.getProductCode() + " / name: " + item.getProductName(), null)
                     );
                 }
+
+                if (product.getExpiryDate() != null && product.getExpiryDate().isBefore(java.time.LocalDate.now())) {
+                    log.warn("[External IMS] Product is expired for code={} or name={}", 
+                             item.getProductCode(), item.getProductName());
+                    return ResponseEntity.badRequest().body(
+                        new ApiResponse(HttpStatus.BAD_REQUEST.value(), 
+                                        "Product is expired: " + product.getName() + " (Expired on " + product.getExpiryDate() + ")", null)
+                    );
+                }
             }
 
             // Second pass: save requests

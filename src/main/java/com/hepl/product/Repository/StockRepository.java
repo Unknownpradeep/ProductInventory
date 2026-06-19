@@ -16,6 +16,8 @@ public interface StockRepository extends JpaRepository<Stock, Long> {
     List<Stock> findByProductId(Long productId);
 
     @Query("SELECT s FROM Stock s WHERE s.deleted = false AND " +
+           "((s.expiryDate IS NULL AND (s.product.ExpiryDate IS NULL OR s.product.ExpiryDate >= CURRENT_DATE)) OR " +
+           " (s.expiryDate IS NOT NULL AND s.expiryDate >= CURRENT_DATE)) AND " +
            "(:search IS NULL OR LOWER(s.product.name) LIKE LOWER(CONCAT('%', :search, '%'))) AND " +
            "(:type IS NULL OR LOWER(s.type) = LOWER(:type)) AND " +
            "(:productId IS NULL OR s.product.id = :productId)")
@@ -25,4 +27,9 @@ public interface StockRepository extends JpaRepository<Stock, Long> {
         @Param("productId") Long productId,
         Pageable pageable
     );
+
+    @Query("SELECT s FROM Stock s WHERE s.deleted = false AND " +
+           "((s.expiryDate IS NULL AND (s.product.ExpiryDate IS NULL OR s.product.ExpiryDate >= CURRENT_DATE)) OR " +
+           " (s.expiryDate IS NOT NULL AND s.expiryDate >= CURRENT_DATE))")
+    List<Stock> findAllActive();
 }

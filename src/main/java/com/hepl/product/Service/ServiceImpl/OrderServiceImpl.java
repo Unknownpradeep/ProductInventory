@@ -135,6 +135,10 @@ public class OrderServiceImpl implements OrderService {
             Product product = productRepository.findById(itemDto.getProductId())
                     .orElseThrow(() -> new RuntimeException("Product Not Found: " + itemDto.getProductId()));
 
+            if (product.getExpiryDate() != null && product.getExpiryDate().isBefore(java.time.LocalDate.now())) {
+                throw new RuntimeException("Product is expired: " + product.getName() + " (Expired on " + product.getExpiryDate() + ")");
+            }
+
             OrderItem item = new OrderItem();
             item.setOrder(order);
 
@@ -254,6 +258,10 @@ public class OrderServiceImpl implements OrderService {
         for (OrderItemDto itemDto : dto.getOrderItems()) {
             Product product = productRepository.findById(itemDto.getProductId())
                     .orElseThrow(() -> new RuntimeException("Product Not Found: " + itemDto.getProductId()));
+
+            if (product.getExpiryDate() != null && product.getExpiryDate().isBefore(java.time.LocalDate.now())) {
+                throw new RuntimeException("Product is expired: " + product.getName() + " (Expired on " + product.getExpiryDate() + ")");
+            }
 
             OrderItem item = new OrderItem();
             item.setOrder(order);

@@ -525,7 +525,15 @@ public class WorkflowController {
 
     @GetMapping("/stock")
     public ResponseEntity<ApiResponse> getWarehouseStocks() {
-        List<WarehouseStock> list = warehouseStockRepository.findAll();
+        List<WarehouseStock> list = warehouseStockRepository.findAll().stream()
+                .filter(ws -> ws.getProduct() == null || !ws.getProduct().isDeleted())
+                .filter(ws -> {
+                    if (ws.getProduct() != null && ws.getProduct().getExpiryDate() != null) {
+                        return !ws.getProduct().getExpiryDate().isBefore(java.time.LocalDate.now());
+                    }
+                    return true;
+                })
+                .collect(Collectors.toList());
         return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(), "Success", list));
     }
 
@@ -539,6 +547,10 @@ public class WorkflowController {
                 .orElseThrow(() -> new RuntimeException("Warehouse not found: " + warehouseId));
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found: " + productId));
+
+        if (product.getExpiryDate() != null && product.getExpiryDate().isBefore(java.time.LocalDate.now())) {
+            throw new RuntimeException("Cannot add stock for an expired product: " + product.getName());
+        }
 
         WarehouseStock ws = warehouseStockRepository.findByWarehouse_IdAndProduct_Id(warehouseId, productId)
                 .orElse(new WarehouseStock());
@@ -570,6 +582,13 @@ public class WorkflowController {
             throw new RuntimeException("Source and destination warehouses must be different");
         }
 
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found: " + productId));
+
+        if (product.getExpiryDate() != null && product.getExpiryDate().isBefore(java.time.LocalDate.now())) {
+            throw new RuntimeException("Cannot transfer stock for an expired product: " + product.getName());
+        }
+
         WarehouseStock sourceStock = warehouseStockRepository.findByWarehouse_IdAndProduct_Id(fromWarehouseId, productId)
                 .orElseThrow(() -> new RuntimeException("Source stock not found"));
 
@@ -579,8 +598,6 @@ public class WorkflowController {
 
         Warehouse toWarehouse = warehouseRepository.findById(toWarehouseId)
                 .orElseThrow(() -> new RuntimeException("Destination warehouse not found: " + toWarehouseId));
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found: " + productId));
 
         WarehouseStock destStock = warehouseStockRepository.findByWarehouse_IdAndProduct_Id(toWarehouseId, productId)
                 .orElse(new WarehouseStock());

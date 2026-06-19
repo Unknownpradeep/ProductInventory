@@ -16,8 +16,7 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
     SELECT COALESCE(SUM(oi.quantity), 0)
     FROM OrderItem oi
     WHERE oi.product.id = :productId
-    AND oi.order.status = "CONFIRMED"
+    AND oi.order.status = 'CONFIRMED'
     """)
-int getTotalQuantityByProductId(Long productId);
-    int getTotalQuantityByProductId(Long productId, String string);
+    int getTotalQuantityByProductId(Long productId);
 }

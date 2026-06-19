@@ -22,7 +22,7 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
            "LOWER(i.customerName) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "LOWER(i.orderCode) LIKE LOWER(CONCAT('%', :search, '%'))) AND " +
            "(:status IS NULL OR LOWER(i.status) = LOWER(:status)) AND " +
-           "(:customerId IS NULL OR i.customer.id = :customerId)")
+           "(:customerId IS NULL OR i.customer.id = :customerId) ORDER BY i.id DESC")
     Page<Invoice> searchAndFilter(
         @Param("search") String search,
         @Param("status") String status,

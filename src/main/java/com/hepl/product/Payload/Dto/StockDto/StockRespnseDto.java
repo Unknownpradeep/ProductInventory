@@ -12,5 +12,8 @@ public class StockRespnseDto {
     private int quantity;
     private LocalDateTime createdAt= LocalDateTime.now();
     private String type;
+    private java.time.LocalDate expiryDate;
+    private int saleableStock;
+    private int nonSaleableStock;
 
 }

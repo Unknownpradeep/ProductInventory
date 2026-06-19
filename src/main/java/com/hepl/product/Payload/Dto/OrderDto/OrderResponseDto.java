@@ -18,6 +18,9 @@ public class OrderResponseDto {
     private double finalAmount;
     private String status;
     private String paymentStatus;
+    private String paymentMethod;
+    private String onlinePaymentOption;
+    private String cancellationRemarks;
     
     private List<CustomerResponseDto> customer;
     private List<OrderItemResponseDto> products;

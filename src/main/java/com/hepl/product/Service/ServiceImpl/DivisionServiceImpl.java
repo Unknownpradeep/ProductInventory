@@ -2,6 +2,8 @@ package com.hepl.product.Service.ServiceImpl;
 
 
 
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +31,7 @@ public class DivisionServiceImpl implements DivisionService {
     }
 
     @Override
+    @Cacheable(value = "divisions", key = "#id")
     public DivisionResponseDto get(Long id) {
         Division division = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Division Not Found"));
@@ -45,6 +48,7 @@ public class DivisionServiceImpl implements DivisionService {
     }
 
     @Override
+    @CacheEvict(value = "divisions", key = "#id")
     public DivisionResponseDto update(Long id, DivisionRequestDto division) {
         Division existing = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Division Not Found"));
@@ -53,6 +57,7 @@ public class DivisionServiceImpl implements DivisionService {
     }
 
     @Override
+    @CacheEvict(value = "divisions", key = "#id")
     public void delete(Long id) {
         Division existing=repository.findById(id).orElseThrow(()->new RuntimeException("Division Not Found"));
         existing.setDeleted(true);

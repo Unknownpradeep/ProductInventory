@@ -9,10 +9,12 @@ public class OrderItemResponseDto {
     private String productCode;
     private String divisionName;
     private int quantity;
+    private int dispatchedQuantity;
     private double price;
     private double discount;
     private double gstpercentage;
     private double taxamount;
     private double totalPrice;
     private String status;
+    private String batchcode;
 }

@@ -7,5 +7,5 @@ public class RegisterRequest {
     private String username;
     private String password;
     private String email;
-    //private String role;
+    private String role; // e.g. ROLE_ADMIN, ROLE_MANAGER, ROLE_USER
 }

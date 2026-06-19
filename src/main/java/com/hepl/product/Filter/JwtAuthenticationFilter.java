@@ -47,14 +47,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
         
-        // Allow login, register and swagger endpoints
+        // Allow login, register, swagger and static upload endpoints
         if (path.contains("/api/v1/auth/login") || 
             path.contains("/api/v1/auth/register") ||
             path.contains("/api/v1/auth/validate") ||
+            path.contains("/api/v1/auth/forgot-password") ||
+            path.contains("/api/v1/auth/reset-password") ||
+            path.contains("/api/v1/invoices/download/order/") ||
+            path.contains("/api/v1/orders/code/") ||
+            path.contains("/api/stock-requests") ||
+            path.contains("/api/v1/email/") ||
             path.contains("/swagger-ui") ||
             path.contains("/v3/api-docs") ||
             path.contains("/swagger-resources") ||
-            path.contains("/webjars")) {
+            path.contains("/webjars") ||
+            path.startsWith("/uploads/")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -77,17 +84,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         if (username != null && jwtUtil.validateToken(token, username)) {
-
-    UsernamePasswordAuthenticationToken authToken =
-            new UsernamePasswordAuthenticationToken(
-                    username,
-                    null,
-                    Collections.singletonList(new SimpleGrantedAuthority("USER"))
-            );
-
-    SecurityContextHolder.getContext().setAuthentication(authToken);
-
-    filterChain.doFilter(request, response);
+            String role = jwtUtil.extractRole(token);
+            String authority = "ROLE_USER";
+            if (role != null && !role.isBlank()) {
+                String upper = role.toUpperCase().trim();
+                if (upper.startsWith("ROLE_")) {
+                    authority = upper;
+                } else {
+                    authority = "ROLE_" + upper;
+                }
+            }
+            UsernamePasswordAuthenticationToken authToken =
+                    new UsernamePasswordAuthenticationToken(
+                            username,
+                            null,
+                            Collections.singletonList(new SimpleGrantedAuthority(authority))
+                    );
+            SecurityContextHolder.getContext().setAuthentication(authToken);
+            filterChain.doFilter(request, response);
 
 } else {
     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

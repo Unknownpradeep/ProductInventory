@@ -3,6 +3,12 @@ package com.hepl.product;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.scheduling.annotation.EnableAsync;
+
+@EnableCaching
+@EnableAsync
+@org.springframework.scheduling.annotation.EnableScheduling
 @SpringBootApplication
 public class ProductApplication {
 

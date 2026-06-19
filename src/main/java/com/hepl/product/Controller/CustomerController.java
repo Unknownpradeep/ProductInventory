@@ -13,6 +13,14 @@ import com.hepl.product.model.Customer;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import java.util.Map;
+import java.time.LocalDate;
+import com.hepl.product.Service.CustomerImportExportService;
+import com.hepl.product.Payload.Dto.CustomerDto.CustomerResponseDto;
+import org.springframework.data.domain.Page;
 
 @RestController
 @RequestMapping("/api/v1/customers")
@@ -21,6 +29,9 @@ public class CustomerController {
 
     @Autowired
     private CustomerService service;
+
+    @Autowired
+    private CustomerImportExportService importExportService;
 
     
     @GetMapping
@@ -80,4 +91,59 @@ public class CustomerController {
 //     );
 // }
 
+    // ─── Bulk Import / Export ─────────────────────────────────────────────────
+
+    @PostMapping(value = "/import/excel", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse> importFromExcel(@RequestParam("file") MultipartFile file) {
+        try {
+            if (file.isEmpty()) return ResponseEntity.badRequest().body(new ApiResponse(400, "File is empty", null));
+            Map<String, Object> result = importExportService.importFromExcel(file);
+            return ResponseEntity.ok(new ApiResponse(200, "Import completed", result));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(new ApiResponse(500, "Import failed: " + e.getMessage(), null));
+        }
+    }
+
+    @GetMapping("/export/excel")
+    public ResponseEntity<byte[]> exportToExcel(
+            @RequestParam(required = false) String search,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "5000") int size) {
+        try {
+            Page<CustomerResponseDto> data = service.listAll(search, null, null, null, null, page, size, "id", "asc");
+            byte[] bytes = importExportService.exportToExcel(data.getContent());
+            String filename = "customers_" + LocalDate.now() + ".xlsx";
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                    .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .body(bytes);
+        } catch (Exception e) { return ResponseEntity.status(500).build(); }
+    }
+
+    @GetMapping("/export/pdf")
+    public ResponseEntity<byte[]> exportToPdf(
+            @RequestParam(required = false) String search,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "5000") int size) {
+        try {
+            Page<CustomerResponseDto> data = service.listAll(search, null, null, null, null, page, size, "id", "asc");
+            byte[] bytes = importExportService.exportToPdf(data.getContent());
+            String filename = "customers_" + LocalDate.now() + ".pdf";
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(bytes);
+        } catch (Exception e) { return ResponseEntity.status(500).build(); }
+    }
+
+    @GetMapping("/import/template")
+    public ResponseEntity<byte[]> downloadTemplate() {
+        try {
+            byte[] bytes = importExportService.generateExcelTemplate();
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"customer_template.xlsx\"")
+                    .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .body(bytes);
+        } catch (Exception e) { return ResponseEntity.status(500).build(); }
+    }
 }

@@ -31,6 +31,8 @@ public class User {
     private LocalDateTime updatedAt= LocalDateTime.now();
     private int createdBy;
     private boolean deleted=false;
+    private String resetPasswordToken;
+    private LocalDateTime resetPasswordTokenExpiry;
 
     @ManyToMany
     @JoinTable(

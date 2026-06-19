@@ -1,6 +1,6 @@
 package com.hepl.product.model;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -22,6 +22,9 @@ public class Stock {
     private String productName;
     private int quantity;
     private String type;
-    private LocalDateTime createdAt= LocalDateTime.now();
+    private LocalDate expiryDate;
+    private int saleableStock;
+    private int nonSaleableStock;
+    private LocalDate createdAt;
     private boolean deleted=false;
 }

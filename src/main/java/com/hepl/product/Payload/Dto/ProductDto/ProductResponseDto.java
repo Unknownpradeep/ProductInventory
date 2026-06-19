@@ -1,29 +1,22 @@
 package com.hepl.product.Payload.Dto.ProductDto;
 
-import java.time.LocalDate;
+import java.io.Serializable;
 
 import lombok.Data;
 
 @Data
-public class ProductResponseDto { 
-
+public class ProductResponseDto implements Serializable {
     private Long id;
-
-
     private String name;
-
-
     private double price;
     private int quantity;
-     private LocalDate ExpiryDate;
-    private String DivisionName; 
-
+    private String DivisionName;
     private String sku;
     private String uom;
-       
-    private int saleableStock;
-    private int nonSaleableStock;
+    private String batchcode;
+    private double gstpercentage;
+    private double discount;
+
+    @com.fasterxml.jackson.annotation.JsonProperty("ExpiryDate")
+    private java.time.LocalDate ExpiryDate;
 }
-     
-
-

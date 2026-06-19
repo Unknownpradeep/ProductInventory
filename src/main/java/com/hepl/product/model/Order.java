@@ -19,11 +19,9 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
 
-
-
 @Data
 @Entity
-@Table(name = "orders")  
+@Table(name = "orders")
 public class Order {
 
     @Id
@@ -50,6 +48,9 @@ public class Order {
 
     private String paymentstatus;
 
+    private String paymentMethod;
+    private String onlinePaymentOption;
+
     private String shippingAddress;
     private Double baseTotal;
     private Double TotalDiscount;
@@ -59,15 +60,14 @@ public class Order {
     @Column(name = "deleted")
     private boolean deleted = false;
 
-   
-
     private LocalDateTime orderDate = LocalDateTime.now();
 
     private LocalDateTime updatedAt = LocalDateTime.now();
+
+    private String cancellationRemarks;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     @com.fasterxml.jackson.annotation.JsonIgnore
     private List<OrderItem> orderItems;
 
-    
 }

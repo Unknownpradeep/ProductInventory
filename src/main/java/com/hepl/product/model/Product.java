@@ -25,14 +25,17 @@ public class Product{
      private String name;
      private double price;
      private int quantity;
-    @Column(name = "expiry_date")
-     private LocalDate ExpiryDate;
      
-     private int saleableStock;
-     private int nonSaleableStock;
      private String sku;
      private String uom;
+     private String batchcode;
      private boolean deleted=false;
+     private double gstpercentage;
+     private double discount;
+
+     @Column(name = "expiry_date")
+     @com.fasterxml.jackson.annotation.JsonProperty("ExpiryDate")
+     private LocalDate ExpiryDate;
 
 
     

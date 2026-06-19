@@ -14,22 +14,32 @@ import com.hepl.product.model.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
     Optional<User> findByUsername(String username);
+
     Optional<User> findByEmail(String email);
+    Optional<User> findByResetPasswordToken(String resetPasswordToken);
+
+    Optional<User> findByUsernameIgnoreCase(String username);
+
+    Optional<User> findByEmailIgnoreCase(String email);
+
+    java.util.List<User> findAllByUsernameIgnoreCase(String username);
+
+    java.util.List<User> findAllByEmailIgnoreCase(String email);
+
     Page<User> findByDeletedFalse(Pageable pageable);
 
     @Query("SELECT u FROM User u WHERE u.deleted = false AND " +
-           "(:search IS NULL OR LOWER(u.username) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           "LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           "LOWER(u.firstname) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           "LOWER(u.lastname) LIKE LOWER(CONCAT('%', :search, '%'))) AND " +
-           "(:username IS NULL OR LOWER(u.username) LIKE LOWER(CONCAT('%', :username, '%'))) AND " +
-           "(:email IS NULL OR LOWER(u.email) LIKE LOWER(CONCAT('%', :email, '%'))) AND " +
-           "(:status IS NULL OR LOWER(u.Status) = LOWER(:status))")
+            "(:search IS NULL OR LOWER(u.username) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+            "LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+            "LOWER(u.firstname) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+            "LOWER(u.lastname) LIKE LOWER(CONCAT('%', :search, '%'))) AND " +
+            "(:username IS NULL OR LOWER(u.username) LIKE LOWER(CONCAT('%', :username, '%'))) AND " +
+            "(:email IS NULL OR LOWER(u.email) LIKE LOWER(CONCAT('%', :email, '%'))) AND " +
+            "(:status IS NULL OR LOWER(u.Status) = LOWER(:status))")
     Page<User> searchAndFilter(
-        @Param("search") String search,
-        @Param("username") String username,
-        @Param("email") String email,
-        @Param("status") String status,
-        Pageable pageable
-    );
+            @Param("search") String search,
+            @Param("username") String username,
+            @Param("email") String email,
+            @Param("status") String status,
+            Pageable pageable);
 }

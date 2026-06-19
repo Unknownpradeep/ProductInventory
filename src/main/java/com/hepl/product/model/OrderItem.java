@@ -38,6 +38,11 @@ public class OrderItem {
 
     private int quantity;
 
+    private Integer proposedQuantity;
+
+    @Column(name = "dispatched_quantity", nullable = false)
+    private int dispatchedQuantity = 0;
+
     private double price;
 
     private double discount;

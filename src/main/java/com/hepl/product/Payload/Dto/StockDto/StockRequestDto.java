@@ -14,6 +14,9 @@ public class StockRequestDto {
     private int quantity;
     @NotBlank(message = "Stock type is required")
     private String type;
+    private java.time.LocalDate expiryDate;
+    private int saleableStock;
+    private int nonSaleableStock;
 
 
 

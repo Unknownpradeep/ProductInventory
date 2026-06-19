@@ -14,10 +14,14 @@ import com.hepl.product.model.Division;
 @Repository
 public interface DivisionRepository extends JpaRepository<Division, Long> {
     Optional<Division> findByName(String name);
+
     Optional<Division> findByNameIgnoreCase(String name);
+
+    java.util.List<Division> findAllByNameIgnoreCase(String name);
+
     Page<Division> findByDeletedFalse(Pageable pageable);
 
     @Query("SELECT d FROM Division d WHERE d.deleted = false AND " +
-           "(:search IS NULL OR LOWER(d.name) LIKE LOWER(CONCAT('%', :search, '%')))")
+            "(:search IS NULL OR LOWER(d.name) LIKE LOWER(CONCAT('%', :search, '%')))")
     Page<Division> searchAndFilter(@Param("search") String search, Pageable pageable);
 }

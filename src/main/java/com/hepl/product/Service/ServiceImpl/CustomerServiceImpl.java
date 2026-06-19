@@ -1,5 +1,7 @@
 package com.hepl.product.Service.ServiceImpl;
 
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -10,12 +12,13 @@ import com.hepl.product.Payload.Dto.CustomerDto.CustomerResponseDto;
 import com.hepl.product.Repository.CustomerRepository;
 import com.hepl.product.Service.CustomerService;
 import com.hepl.product.model.Customer;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class CustomerServiceImpl implements CustomerService {
-
+   
     private final CustomerRepository repository;
 
     @Override
@@ -26,6 +29,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    @Cacheable(value = "customers", key = "#id")
     public CustomerResponseDto get(Long id) {
         return mapToDto(repository.findById(id).orElseThrow(() -> new RuntimeException("Customer Not Found")));
     }
@@ -44,6 +48,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    @CacheEvict(value = "customers", key = "#id")
     public CustomerResponseDto update(Long id, Customer customer) {
         Customer existing = repository.findById(id).orElseThrow(() -> new RuntimeException("Customer Not Found"));
         existing.setName(customer.getName());
@@ -56,6 +61,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    @CacheEvict(value = "customers", key = "#id")
     public void delete(Long id) {
         Customer existing = repository.findById(id).orElseThrow(() -> new RuntimeException("Customer Not Found"));
         existing.setDeleted(true);

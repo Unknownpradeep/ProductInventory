@@ -2,6 +2,7 @@ package com.hepl.product.model;
 
 import java.time.LocalDateTime;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,5 +22,10 @@ public class Login {
     private boolean active;
     private LocalDateTime lastLogin;
     private LocalDateTime createdAt = LocalDateTime.now();
-    private boolean deleted =false;
+
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean deleted = false;
+
+    private String resetPasswordToken;
+    private LocalDateTime resetPasswordTokenExpiry;
 }

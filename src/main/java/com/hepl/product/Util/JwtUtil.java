@@ -8,6 +8,7 @@ import java.util.function.Function;
 
 import javax.crypto.SecretKey;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
@@ -18,8 +19,10 @@ import io.jsonwebtoken.security.Keys;
 @Component
 public class JwtUtil {
 
-    private static final String SECRET_KEY = "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970";
-    private static final long JWT_TOKEN_VALIDITY = 1000 * 60 * 60 * 10; // 10 hours
+    @Value("${app.jwt.secret}")
+    private String SECRET_KEY;
+
+    private static final long JWT_TOKEN_VALIDITY = 1000 * 60 * 60 * 10;
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -49,6 +52,16 @@ public class JwtUtil {
     public String generateToken(String username) {
         Map<String, Object> claims = new HashMap<>();
         return createToken(claims, username);
+    }
+
+    public String generateToken(String username, String role) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", role);
+        return createToken(claims, username);
+    }
+
+    public String extractRole(String token) {
+        return (String) extractAllClaims(token).get("role");
     }
 
     private String createToken(Map<String, Object> claims, String subject) {
